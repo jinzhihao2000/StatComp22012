@@ -8,8 +8,6 @@ Use R package \code{microbenchmark} to compare the performance of C functions \c
 }
 \examples{
 \dontrun{
-data(mydata)
-attach(mydata)
 tm1 <- microbenchmark::microbenchmark(
   rnR = gibbsR(N=2000, mu1=0, mu2=0, sigma1=1, sigma2=1, rho=0.9),
   rnC = gibbsC(2000,1,0,0,1,1,0.9)
