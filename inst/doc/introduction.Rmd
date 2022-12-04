@@ -1,0 +1,102 @@
+---
+title: "Introduction to StatComp22012"
+author: "Zhihao Jin"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to StatComp22012}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Overview
+
+**StatComp22012** is a simple R package with two R functions and a Rcpp function, namely *estimate*, *gibbsR*, and *gibbsC*. The function *estimate* shows my research work in the field of matrix completion and rank estimation. It aims to estimate a preferable matrix rank magnitude for fitting a low-rank matrix approximation to the matrix with missing values via the block diagonal missing mechanism. The last two functions aims to compare the performance of R and C++ (implemented through the R package *Rcpp*) for the 'Statistical Computing' course. Function *gibbs* is used to generate a bivariate normal chain using Gibbs sampler. Additionally, both R and Rcpp versions are produced. Namely *gibbsR* for R and *gibbsC* for C++.
+
+The R package 'microbenchmark' can be used to benchmark the above R and C++ functions.
+
+## Quick example for *estimate*
+
+Firstly, let us generate a matrix $M$ with $n=500$ rows and $p=300$ columns.
+
+```{r,eval=T}
+set.seed(1234)
+n=500;p=300;r0=3
+U=matrix(rnorm(n*r0),nrow=n)
+V=matrix(rnorm(p*r0),nrow=p)
+X=U%*%t(V)
+Z=matrix(rnorm(n*p),nrow=n)
+M=X+Z
+```
+
+Secondly, use *estimate* function to estimate the above matrix rank magnitude for fitting a low-rank matrix approximation to it with missing values via the block diagonal missing mechanism$$\left(\begin{array}{l}
+p_1 & p_2\\
+p_3 & p_4\\
+\end{array}\right).$$Especially, we choose $$\left(\begin{array}{l}
+0.05 & 0.3\\
+0.3 & 0.05\\
+\end{array}\right).$$Additionally, we choose $rmin=1$, $rmax=15$ for the search range of rank and then repeat the experiment for $reptime=20$.
+
+```{r,eval=T}
+library(StatComp22012)
+rest=estimate(M,rmin=1,rmax =15,p1=0.05,p2=0.3,p3=0.3,p4=0.05,reptime = 20)
+rest
+```
+
+The result shows the number of estimated rank under a block diagonal missing mechanism.
+
+## Benchmarking *gibbsR* and *gibbsC*
+
+The source R code for *gibbsR* is as follows:
+
+```{r,eval=FALSE}
+gibbsR <- function(N,rho,mu1,mu2,sigma1,sigma2) {
+  X <- matrix(0, N, 2)
+  s1 = sqrt(1 - rho^2) * sigma1
+  s2 = sqrt(1 - rho^2) * sigma2
+  X[1, ] = c(mu1, mu2)
+  for (i in 2:N) {
+    x2 = X[i - 1, 2]
+    m1 = mu1 + rho * (x2 - mu2) * sigma1/sigma2
+    X[i, 1] = rnorm(1, m1, s1)
+    x1 = X[i, 1]
+    m2 = mu2 + rho * (x1 - mu1) * sigma2/sigma1
+    X[i, 2] = rnorm(1, m2, s2) }
+  X
+}
+```
+
+The above R code involves two loops, which could be very slow even for R-3.01 or any higher version. The corresponding C++ code is as follows.
+
+```{r,eval=FALSE}
+NumericMatrix gibbsC(int N,int thin,double mu1, double mu2, double sigma1, double sigma2, double rho) {
+  NumericMatrix mat(N, 2);
+  double x=0,y=0;
+  double s1;
+  s1= sqrt(1 - rho*rho) * sigma1;
+  double s2;
+  s2= sqrt(1 - rho*rho) * sigma2;
+  for(int i = 0; i < N; i++) {
+    for(int j = 0; j < thin; j++) {
+      x = rnorm(1,mu1+rho*(y-mu2)*sigma1/sigma2,s1)[0];
+      y = rnorm(1, mu2+rho*(x-mu1)*sigma2/sigma1,s2)[0];
+    }
+    mat(i, 0) = x;
+    mat(i, 1) = y;
+  }
+  return(mat);
+}
+```
+
+The R code for benchmarking *gibbsR* and *gibbsC* is as follows.
+
+```{r,eval=T}
+library(microbenchmark)
+library(StatComp22012)
+tm1 <- microbenchmark(
+rnR = gibbsR(N=2000, mu1=0, mu2=0, sigma1=1, sigma2=1, rho=0.9),
+rnC = gibbsC(2000,1,0,0,1,1,0.9))
+knitr::kable(summary(tm1)[,c(1,3,5,6)])
+```
+
+The result shows an evident computational speed gain of C++ against R.

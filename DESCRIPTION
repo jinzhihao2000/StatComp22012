@@ -1,0 +1,16 @@
+Package: StatComp22012
+Type: Package
+Title: Example functions for 'Statistical Computing' course
+Version: 1.0
+Date: 2022-12-04
+Author: Zhihao Jin
+Maintainer: Zhihao Jin <jinzhihao@mail.ustc.edu.cn>
+Description: Several R and Rcpp function are included in this package for illustration. 
+License: GPL (>= 2)
+Imports: Rcpp, microbenchmark, knitr, rmarkdown, MASS, mvoutlier, boot, bootstrap, DAAG, bda
+LinkingTo: Rcpp
+RoxygenNote: 7.2.2
+VignetteBuilder: knitr
+Encoding: UTF-8
+URL: http://github.com/jinzhihao2000/StatComp22012
+BugReports: http://github.com/jinzhihao2000/StatComp22012/issues
