@@ -28,7 +28,6 @@ NULL
 #' @return the estimated rank of the matrix with missing data via the block diagonal missing mechanism
 #' @examples
 #' \dontrun{
-#' set.seed(1234)
 #' n=500;p=300;r0=3
 #' U=matrix(rnorm(n*r0),nrow=n)
 #' V=matrix(rnorm(p*r0),nrow=p)
