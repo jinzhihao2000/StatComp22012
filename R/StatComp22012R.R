@@ -3,8 +3,6 @@
 #' @description Use R package \code{microbenchmark} to compare the performance of C functions \code{gibbsR} and Cpp functions \code{gibbsC}.
 #' @examples
 #' \dontrun{
-#' data(mydata)
-#' attach(mydata)
 #' tm1 <- microbenchmark::microbenchmark(
 #'   rnR = gibbsR(N=2000, mu1=0, mu2=0, sigma1=1, sigma2=1, rho=0.9),
 #'   rnC = gibbsC(2000,1,0,0,1,1,0.9)
@@ -30,7 +28,13 @@ NULL
 #' @return the estimated rank of the matrix with missing data via the block diagonal missing mechanism
 #' @examples
 #' \dontrun{
-#' data(mydata)
+#' set.seed(1234)
+#' n=500;p=300;r0=3
+#' U=matrix(rnorm(n*r0),nrow=n)
+#' V=matrix(rnorm(p*r0),nrow=p)
+#' X=U%*%t(V)
+#' Z=matrix(rnorm(n*p),nrow=n)
+#' M=X+Z
 #' rest=estimate(M,rmin=1,rmax =15,p1=0.05,p2=0.3,p3=0.3,p4=0.05,reptime = 20)
 #' rest
 #' }
