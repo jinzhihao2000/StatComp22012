@@ -28,12 +28,8 @@ NULL
 #' @return the estimated rank of the matrix with missing data via the block diagonal missing mechanism
 #' @examples
 #' \dontrun{
-#' n=500;p=300;r0=3
-#' U=matrix(rnorm(n*r0),nrow=n)
-#' V=matrix(rnorm(p*r0),nrow=p)
-#' X=U %*% t(V)
-#' Z=matrix(rnorm(n*p),nrow=n)
-#' M=X+Z
+#' n=500;p=300;
+#' M=matrix(rnorm(n*p),nrow=n)
 #' rest=estimate(M,rmin=1,rmax =15,p1=0.05,p2=0.3,p3=0.3,p4=0.05,reptime = 20)
 #' rest
 #' }
